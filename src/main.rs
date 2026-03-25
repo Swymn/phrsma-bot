@@ -1,38 +1,27 @@
-use std::env;
+use dotenv::dotenv;
 
-use poise::serenity_prelude as serenity;
-
-use crate::interfaces::discord::commands;
+use crate::infrastructure::discord::client::build_client;
 
 mod application;
 mod domain;
 mod infrastructure;
-mod interfaces;
 
 #[tokio::main]
 async fn main() {
-    let token = env::var("DISCORD_TOKEN").expect("Missing env variable DISCORD_TOKEN");
+    // Initiliaze env variables with dotenv
+    dotenv().ok();
 
-    let intents = serenity::GatewayIntents::non_privileged();
+    // Initialize bot
+    let client = build_client().await;
 
-    let framework = poise::Framework::builder()
-        .options(poise::FrameworkOptions {
-            commands: vec![commands::random_agent()],
-            ..Default::default()
-        })
-        .setup(|ctx, ready, framework| {
-            Box::pin(async move {
-                poise::builtins::register_globally(ctx, &framework.options().commands).await?;
+    // Run the bot
+    match client {
+        Ok(mut client) => {
+            client.start().await.unwrap();
+        }
 
-                println!("Connecté en tant que {}", ready.user.name);
-                Ok(commands::Data::default())
-            })
-        })
-        .build();
-
-    let client = serenity::ClientBuilder::new(token, intents)
-        .framework(framework)
-        .await;
-
-    client.unwrap().start().await.unwrap();
+        Err(e) => {
+            eprintln!("Failed to start the bot: {e}");
+        }
+    };
 }
