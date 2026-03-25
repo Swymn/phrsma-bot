@@ -50,5 +50,5 @@ jobs:
           script: |
             cd ${{ env.REMOTE_DIR }}
             pkill ${{ env.APP_NAME }} || true
-            chmod +x ${{ env.APP_NAME }}
-            nohup ./${{ env.APP_NAME }} > app.log 2>&1 &
+            chmod +x target/${{ env.TARGET }}/release/${{ env.APP_NAME }}
+            nohup ./target/${{ env.TARGET }}/release/${{ env.APP_NAME }} > app.log 2>&1 &
