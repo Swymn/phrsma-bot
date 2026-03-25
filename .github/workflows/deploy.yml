@@ -23,6 +23,9 @@ jobs:
         with:
           toolchain: stable
 
+      - name: Install musl tools
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+
       - name: Add target
         run: rustup target add $TARGET
 
