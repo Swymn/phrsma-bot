@@ -1,0 +1,51 @@
+name: Build & Deploy Rust App
+
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  APP_NAME: phrsma-bot
+  TARGET: x86_64-unknown-linux-musl
+  REMOTE_DIR: /home/phrsma-discord-bot/
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Add target
+        run: rustup target add $TARGET
+
+      - name: Build (release)
+        run: cargo build --release --target $TARGET
+
+      - name: Upload binary (SCP)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: target/${{ env.TARGET }}/release/${{ env.APP_NAME }}
+          target: ${{ env.REMOTE_DIR }}
+
+      - name: Restart app (SSH)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ${{ env.REMOTE_DIR }}
+            pkill ${{ env.APP_NAME }} || true
+            chmod +x ${{ env.APP_NAME }}
+            nohup ./${{ env.APP_NAME }} > app.log 2>&1 &
