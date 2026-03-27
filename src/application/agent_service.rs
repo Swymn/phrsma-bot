@@ -31,12 +31,16 @@ mod tests {
             Agent::new(
                 "1".to_string(),
                 "Jett".to_string(),
+                "icon".to_string(),
                 Role::new("1".to_string(), RoleName::Duelist),
+                vec![],
             ),
             Agent::new(
                 "2".to_string(),
                 "Reyna".to_string(),
+                "icon".to_string(),
                 Role::new("1".to_string(), RoleName::Duelist),
+                vec![],
             ),
         ];
 
