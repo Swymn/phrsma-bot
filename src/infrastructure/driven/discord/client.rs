@@ -18,7 +18,7 @@ pub async fn build_client() -> Result<Client, Error> {
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
 
                 println!("Connecté en tant que {}", ready.user.name);
-                Ok(discord::commands::Data::default())
+                Ok(discord::context::Data::default())
             })
         })
         .build();
@@ -27,4 +27,3 @@ pub async fn build_client() -> Result<Client, Error> {
         .framework(framework)
         .await
 }
-
